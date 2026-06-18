@@ -8,11 +8,10 @@ from api import services
 from api.intelligence import get_daily_briefing, get_patrol_map, get_zone_detail
 from dispatcher import acknowledge_latest_dispatch, read_dispatch_log, run_dispatch_cycle
 
-services.store.load()
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    services.store.load()
     yield
 
 

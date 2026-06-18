@@ -40,7 +40,6 @@ class DataStore:
         self.zones: pd.DataFrame = pd.DataFrame()
         self.meta: dict = {}
         self.forecasts: dict[str, list] = {}
-        self.outcomes: dict = {}
         self.summary_cache: dict = {}
         self.repeat_offenders_cache: dict = {}
         self.station_cache: dict = {}
@@ -59,23 +58,17 @@ class DataStore:
                 continue
             with open(path) as f:
                 self.forecasts[path.stem] = json.load(f)
-        self.outcomes = load_outcomes()
 
-        self.summary_cache = get_summary()
-        self.repeat_offenders_cache = get_repeat_offenders()
-        self.station_cache = get_station_performance()
-        self.feedback_cache = get_feedback_loop()
+        # Keep caches empty until a request actually needs them.
+        # This keeps startup lighter and avoids precomputing large summaries
+        # for every endpoint before the app is ready to serve traffic.
+        self.summary_cache = {}
+        self.repeat_offenders_cache = {}
+        self.station_cache = {}
+        self.feedback_cache = {}
 
 
 store = DataStore()
-
-
-def load_outcomes() -> dict:
-    path = ARTIFACTS / "outcomes.json"
-    if not path.exists():
-        return {}
-    with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
 
 
 def rejection_rate(series: pd.Series) -> float:
@@ -411,7 +404,3 @@ def get_feedback_loop(loc_key: str | None = None) -> dict:
     if loc_key is None:
         store.feedback_cache = result
     return result
-
-
-def get_outcomes() -> dict:
-    return store.outcomes if store.outcomes else {"reduction_pct": 0.0, "zones_analyzed": 0, "best_zone": None, "simulated_events": 0}
