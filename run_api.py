@@ -1,4 +1,4 @@
-"""Start the ParkIQ API server.
+"""Start the SENTRI API server.
 
 Use: python run_api.py
 
@@ -16,7 +16,7 @@ import requests
 import uvicorn
 
 HOST = "127.0.0.1"
-DEFAULT_PORT = int(os.getenv("PARKIQ_API_PORT", "8000"))
+DEFAULT_PORT = int(os.getenv("SENTRI_API_PORT", "8000"))
 
 
 def _port_in_use(port: int) -> bool:
@@ -51,7 +51,7 @@ def main() -> None:
 
     if _port_in_use(port):
         if _api_healthy(port):
-            print(f"ParkIQ API is already running at http://{HOST}:{port}")
+            print(f"SENTRI API is already running at http://{HOST}:{port}")
             print("Refresh your Streamlit dashboard — no need to start again.")
             return
         print(f"Port {port} is in use by another program.")
@@ -61,11 +61,11 @@ def main() -> None:
             sys.exit(1)
         print(f"Using alternate port {alt}.")
         print("Before starting Streamlit, run one of these:")
-        print(f'  PowerShell: $env:PARKIQ_API_URL="http://{HOST}:{alt}"')
-        print(f'  CMD: set PARKIQ_API_URL=http://{HOST}:{alt}')
+        print(f'  PowerShell: $env:SENTRI_API_URL="http://{HOST}:{alt}"')
+        print(f'  CMD: set SENTRI_API_URL=http://{HOST}:{alt}')
         port = alt
 
-    print(f"Starting ParkIQ API at http://{HOST}:{port}")
+    print(f"Starting SENTRI API at http://{HOST}:{port}")
     uvicorn.run("api.main:app", host=HOST, port=port, reload=False)
 
 

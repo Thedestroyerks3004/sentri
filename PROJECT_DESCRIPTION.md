@@ -1,8 +1,8 @@
-# ParkIQ Project Description
+# SENTRI Project Description
 
 ## 1. Project Overview
 
-ParkIQ is a Bengaluru parking intelligence dashboard designed to help traffic and enforcement teams predict, prioritize, and respond to parking violations more effectively. The system combines historical violation data, anomaly detection, risk scoring, forecasting, and dispatch automation into a single web-based platform.
+SENTRI is a Bengaluru parking intelligence dashboard designed to help traffic and enforcement teams predict, prioritize, and respond to parking violations more effectively. The system combines historical violation data, anomaly detection, risk scoring, forecasting, and dispatch automation into a single web-based platform.
 
 The project is built around a simple idea:
 
@@ -18,7 +18,7 @@ The project is built around a simple idea:
 
 Traditional parking enforcement often relies on reactive responses. Officers may patrol areas without knowing which zones are most likely to need attention at a specific time.
 
-ParkIQ solves this by giving teams:
+SENTRI solves this by giving teams:
 
 - a daily enforcement summary,
 - a patrol map for the next few hours,
@@ -158,7 +158,7 @@ It helps answer:
 ### 3.7 About / Integration Guide
 This page explains:
 
-- what ParkIQ is,
+- what SENTRI is,
 - how the models work,
 - how the system connects to existing enforcement infrastructure,
 - how it can be integrated with live backend systems later.
@@ -224,7 +224,7 @@ The backend is built using FastAPI and exposes multiple endpoints for the dashbo
 
 ## 5. SMS Dispatch Feature
 
-ParkIQ includes an automated dispatch feature for sending SMS messages to officers.
+SENTRI includes an automated dispatch feature for sending SMS messages to officers.
 
 ### Purpose
 The dispatch system is intended to notify officers about:
@@ -259,7 +259,7 @@ It also supports per-officer overrides using variables like:
 
 ## 6. Machine Learning Components
 
-ParkIQ uses several ML-related workflows.
+SENTRI uses several ML-related workflows.
 
 ### 6.1 Isolation Forest for anomalies
 The anomaly detector uses an Isolation Forest model to identify unusual records.
@@ -407,7 +407,7 @@ This architecture separates:
 
 ## 12. Key Benefits
 
-ParkIQ gives users the ability to:
+SENTRI gives users the ability to:
 
 - move from reactive enforcement to proactive enforcement,
 - prioritize zones based on risk and forecasts,
@@ -420,7 +420,7 @@ ParkIQ gives users the ability to:
 
 ## 13. Best Use Cases
 
-ParkIQ is particularly useful for:
+SENTRI is particularly useful for:
 
 - city traffic enforcement teams,
 - parking enforcement managers,
@@ -432,4 +432,4 @@ ParkIQ is particularly useful for:
 
 ## 14. Summary
 
-ParkIQ is a full-featured parking intelligence platform that combines data analysis, forecasting, anomaly detection, geospatial visualization, and dispatch automation. Its main value is in helping teams understand where enforcement effort should be focused and when that effort will have the greatest impact.
+SENTRI is a full-featured parking intelligence platform that combines data analysis, forecasting, anomaly detection, geospatial visualization, and dispatch automation. Its main value is in helping teams understand where enforcement effort should be focused and when that effort will have the greatest impact.

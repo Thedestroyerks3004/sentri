@@ -3,7 +3,7 @@ import streamlit as st
 from utils.ui import apply_brand
 
 st.set_page_config(
-    page_title="ParkIQ — Bengaluru Parking Intelligence",
+    page_title="SENTRI — Bengaluru Parking Intelligence",
     page_icon="🅿️",
     layout="wide",
     initial_sidebar_state="expanded",

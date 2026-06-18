@@ -16,7 +16,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="ParkIQ API", version="1.0.0", lifespan=lifespan)
+app = FastAPI(title="SENTRI API", version="1.0.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,

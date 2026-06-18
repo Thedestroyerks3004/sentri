@@ -284,7 +284,7 @@ def run_dispatch_cycle() -> dict:
             "error": "no officer locations available",
         }
 
-    api_base = os.getenv("PARKIQ_API_URL", "http://127.0.0.1:8000").rstrip("/")
+    api_base = os.getenv("SENTRI_API_URL", "http://127.0.0.1:8000").rstrip("/")
 
     try:
         scheduler_response = requests.get(

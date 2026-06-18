@@ -2,14 +2,14 @@ import streamlit as st
 
 from utils.ui import apply_brand, page_header
 
-page_header("ℹ️ About & Integration Guide", "How ParkIQ connects to existing Bengaluru enforcement systems.")
+page_header("ℹ️ About & Integration Guide", "How SENTRI connects to existing Bengaluru enforcement systems.")
 
 apply_brand()
 
 st.markdown("""
-## What is ParkIQ?
+## What is SENTRI?
 
-ParkIQ transforms **298,450** anonymised parking violation records into actionable enforcement
+SENTRI transforms **298,450** anonymised parking violation records into actionable enforcement
 intelligence using three AI models:
 
 | Model | Purpose |

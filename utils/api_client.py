@@ -3,7 +3,7 @@ import os
 import requests
 import streamlit as st
 
-API_BASE = os.getenv("PARKIQ_API_URL", "http://127.0.0.1:8000")
+API_BASE = os.getenv("SENTRI_API_URL", "http://127.0.0.1:8000")
 
 
 @st.cache_data(ttl=300, show_spinner=False)
@@ -123,12 +123,3 @@ def get_zone_detail(loc_key: str) -> dict:
 @st.cache_data(ttl=300, show_spinner=False)
 def get_daily_briefing() -> dict:
     return _get("/api/daily-briefing")
-
-
-@st.cache_data(ttl=300, show_spinner=False)
-def get_outcomes() -> dict:
-    return _get("/api/outcomes")
-
-
-def acknowledge_dispatch() -> dict:
-    return requests.post(f"{API_BASE}/api/dispatch/acknowledge", timeout=30).json()

@@ -21,7 +21,7 @@ if missing:
 
 client = Client(account_sid, auth_token)
 message = client.messages.create(
-    body='ParkIQ test SMS from the dispatch setup script.',
+    body='SENTRI test SMS from the dispatch setup script.',
     from_=from_number,
     to=to_number,
 )
