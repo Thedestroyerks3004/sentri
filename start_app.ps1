@@ -4,11 +4,10 @@
 $projectPath = "D:\Machine Learning\Gridlock\Parkiq"
 $pythonExe   = "$projectPath\.venv\Scripts\python.exe"
 
-# --- Update these values whenever needed ---
-$env:TWILIO_ACCOUNT_SID  = "AC5c8016795fa084171c520f3e6ab645aa"
-$env:TWILIO_AUTH_TOKEN   = "e79e751770ff1812a06beb3cea9d85fe"
-$env:TWILIO_PHONE_NUMBER = "+18146322202"
-$env:TWILIO_TO_NUMBER    = "+918148091513"
+$env:TWILIO_ACCOUNT_SID  = "your_account_sid"
+$env:TWILIO_AUTH_TOKEN   = "your_auth_token"
+$env:TWILIO_PHONE_NUMBER = "your_twilio_number"
+$env:TWILIO_TO_NUMBER    = "your_mobile_number"
 $env:PARKIQ_API_PORT     = "8000"
 $env:PARKIQ_API_URL      = "http://127.0.0.1:8000"
 
