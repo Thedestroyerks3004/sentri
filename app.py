@@ -1,5 +1,8 @@
+import os
+
 import streamlit as st
 
+from utils.api_client import api_available
 from utils.ui import apply_brand
 
 st.set_page_config(
@@ -10,6 +13,15 @@ st.set_page_config(
 )
 
 apply_brand()
+
+if not api_available():
+    st.warning(
+        "Connecting to the deployed backend... If the API is still warming up, click Reload once more."
+    )
+    st.caption(f"Using API base: {os.getenv('SENTRI_API_URL', 'http://127.0.0.1:8000')}")
+    if st.button("Reload dashboard", use_container_width=True):
+        st.rerun()
+    st.stop()
 
 pages = [
     st.Page("pages/00_daily_briefing.py", title="Daily Briefing", icon="📋", default=True),

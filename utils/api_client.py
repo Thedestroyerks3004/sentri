@@ -21,6 +21,7 @@ def _get(path: str, params: dict | None = None):
         raise RuntimeError(f"Unable to reach API at {url}: {exc}") from exc
 
 
+@st.cache_data(ttl=5, show_spinner=False)
 def api_available() -> bool:
     required_paths = (
         "/api/stats/summary",
@@ -28,7 +29,7 @@ def api_available() -> bool:
     )
     try:
         return all(
-            requests.get(f"{API_BASE}{path}", timeout=30).status_code == 200
+            requests.get(f"{API_BASE}{path}", timeout=15).status_code == 200
             for path in required_paths
         )
     except Exception:

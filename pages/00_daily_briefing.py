@@ -13,10 +13,14 @@ from utils.ui import apply_brand, format_indian
 apply_brand()
 
 if not api_available():
-    st.error(
-        "The API is not ready or is running an outdated build. "
-        "Restart the backend with `python run_api.py` and reload this page."
+    st.warning(
+        "The backend is not reachable yet. Please wait a moment, or click Reload to try again."
     )
+    st.caption(
+        f"Current API endpoint: {os.getenv('SENTRI_API_URL', 'http://127.0.0.1:8000')}"
+    )
+    if st.button("Reload dashboard", use_container_width=True):
+        st.rerun()
     st.stop()
 
 try:
