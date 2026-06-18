@@ -153,7 +153,18 @@ This script starts:
 - the API backend, and
 - the Streamlit dashboard
 
-### Option 2: Run manually
+### Option 2: Run both together in one command
+
+```bash
+python start_both.py
+```
+
+This launches:
+
+- the API backend on port `8000`, and
+- the Streamlit UI on port `8501`
+
+### Option 3: Run manually
 
 Start the API:
 
