@@ -181,3 +181,4 @@
 [34m[49mhttps://www.twilio.com/docs/errors/20003[0m
 
 
+[2026-06-18 19:00:02] run_dispatch_cycle: scheduler request failed: HTTPConnectionPool(host='127.0.0.1', port=8000): Max retries exceeded with url: /api/scheduler?hour=19&day=3&limit=3 (Caused by NewConnectionError("HTTPConnection(host='127.0.0.1', port=8000): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it"))
