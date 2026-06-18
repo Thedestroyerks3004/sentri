@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # ParkIQ
 
 ParkIQ is a Bengaluru parking intelligence platform designed to help enforcement teams detect, prioritize, and respond to parking violations more effectively. The system combines historical violation data, anomaly detection, forecasting, patrol planning, and optional SMS dispatching into a single dashboard.
@@ -207,4 +207,4 @@ This project is intended for internal operational and research use.
 =======
 # sentri
 SENTRI transforms 298,450 real Bengaluru parking violation records  into a live enforcement command system. Instead of reactive patrolling,  officers receive proactive SMS dispatch orders based on predicted  violation spikes — before congestion forms.
->>>>>>> eb04cff065c7cc59e00b3ac31fc57be2a5d229ec
+
