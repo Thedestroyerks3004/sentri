@@ -1,0 +1,18 @@
+[2026-06-18 10:01:52] officer=FKUSR02263 zone=T Mariyappa Road, Block 1, Jayanagar East, Bengaluru, Karnataka. Pin-560011 (India) status=delivered recipient=+918148091513 error=n/a
+[2026-06-18 10:01:53] officer=FKUSR00244 zone=8th Cross Road, RR Palace, Malleshwaram, Bengaluru, Karnataka. Pin-560003 (India) status=delivered recipient=+918148091513 error=n/a
+[2026-06-18 10:01:54] officer=FKUSR01448 zone=Field Marshal KM Cariappa Road, St Patricks Complex, Ashok Nagar, Bengaluru, Karnataka. Pin-560025 (India) status=delivered recipient=+918148091513 error=n/a
+[2026-06-18 12:00:00] officer=FKUSR00393 zone=KR Market Pedestrian Subway, City Market Circle, Bengaluru, Karnataka. Pin-560002 (India) status=failed (missing recipient phone) recipient=n/a error=No recipient phone number available for this officer.
+[2026-06-18 12:00:00] officer=FKUSR01334 zone=Hoodi Main Road, Godrej Air Nxt, Hoodi, Bengaluru, Karnataka. Pin-560048 (India) status=failed (missing recipient phone) recipient=n/a error=No recipient phone number available for this officer.
+[2026-06-18 12:00:00] officer=FKUSR02109 zone=HAL Airport Road, Ashwath Nagar, Marathahalli, Bengaluru, Karnataka. Pin-560037 (India) status=failed (missing recipient phone) recipient=n/a error=No recipient phone number available for this officer.
+[2026-06-18 16:35:29] officer=FKUSR02645 zone=KR Main Road, City Market Circle, Bengaluru, Karnataka. Pin-560002 (India) status=delivered recipient=+918148091513 error=n/a
+[2026-06-18 16:35:30] officer=FKUSR00266 zone=Kempegowda Road, Kempe Gowda Circle, Gandhi Nagar, Bengaluru, Karnataka. Pin-560009 (India) status=delivered recipient=+918148091513 error=n/a
+[2026-06-18 16:35:31] officer=FKUSR02645 zone=KR Main Road, City Market Circle, Bengaluru, Karnataka. Pin-560002 (India) status=delivered recipient=+918148091513 error=n/a
+[2026-06-18 16:35:36] officer=FKUSR02645 zone=KR Main Road, City Market Circle, Bengaluru, Karnataka. Pin-560002 (India) status=delivered recipient=+918148091513 error=n/a
+[2026-06-18 16:35:36] officer=FKUSR00266 zone=Kempegowda Road, Kempe Gowda Circle, Gandhi Nagar, Bengaluru, Karnataka. Pin-560009 (India) status=delivered recipient=+918148091513 error=n/a
+[2026-06-18 16:35:37] officer=FKUSR02645 zone=KR Main Road, City Market Circle, Bengaluru, Karnataka. Pin-560002 (India) status=delivered recipient=+918148091513 error=n/a
+[2026-06-18 16:56:32] officer=FKUSR02645 zone=KR Main Road, City Market Circle, Bengaluru, Karnataka. Pin-560002 (India) status=delivered recipient=+918148091513 error=n/a
+[2026-06-18 16:56:35] officer=FKUSR00266 zone=Kempegowda Road, Kempe Gowda Circle, Gandhi Nagar, Bengaluru, Karnataka. Pin-560009 (India) status=delivered recipient=+918148091513 error=n/a
+[2026-06-18 16:56:36] officer=FKUSR02645 zone=KR Main Road, City Market Circle, Bengaluru, Karnataka. Pin-560002 (India) status=delivered recipient=+918148091513 error=n/a
+[2026-06-18 17:00:03] officer=FKUSR00575 zone=KR Main Road, City Market Circle, Bengaluru, Karnataka. Pin-560002 (India) status=failed (missing recipient phone) recipient=n/a error=No recipient phone number available for this officer.
+[2026-06-18 17:00:03] officer=FKUSR00575 zone=KR Main Road, City Market Circle, Bengaluru, Karnataka. Pin-560002 (India) status=failed (missing recipient phone) recipient=n/a error=No recipient phone number available for this officer.
+[2026-06-18 17:00:04] officer=FKUSR01561 zone=KR Main Road, City Market Circle, Bengaluru, Karnataka. Pin-560002 (India) status=failed (missing recipient phone) recipient=n/a error=No recipient phone number available for this officer.

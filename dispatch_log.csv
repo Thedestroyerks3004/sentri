@@ -1,0 +1,31 @@
+timestamp,officer_id,zone_name,risk_tier,predicted_violations,distance_km,station_name,sms_status,error_detail,recipient_phone,acknowledged_at
+2026-06-17 18:00:18,FKUSR00218,"Mysore Road, City Market Circle, Bengaluru, Karnataka. Pin-560002 (India)",Low Risk,80,0.01,City Market,failed,,,
+2026-06-17 18:00:19,FKUSR01305,"Mysore Road, City Market Circle, Bengaluru, Karnataka. Pin-560002 (India)",Low Risk,80,0.01,City Market,failed,,,
+2026-06-17 18:00:19,FKUSR01598,"Mysore Road, City Market Circle, Bengaluru, Karnataka. Pin-560002 (India)",Low Risk,80,0.01,City Market,failed,,,
+2026-06-17 18:00:35,FKUSR00218,"Mysore Road, City Market Circle, Bengaluru, Karnataka. Pin-560002 (India)",Low Risk,80,0.01,City Market,failed,,,
+2026-06-17 18:00:36,FKUSR01305,"Mysore Road, City Market Circle, Bengaluru, Karnataka. Pin-560002 (India)",Low Risk,80,0.01,City Market,failed,,,
+2026-06-17 18:00:40,FKUSR01598,"Mysore Road, City Market Circle, Bengaluru, Karnataka. Pin-560002 (India)",Low Risk,80,0.01,City Market,failed,,,
+2026-06-17 18:13:54,FKUSR00218,"Mysore Road, City Market Circle, Bengaluru, Karnataka. Pin-560002 (India)",Low Risk,80,0.01,City Market,failed,,,
+2026-06-17 18:13:54,FKUSR01305,"Mysore Road, City Market Circle, Bengaluru, Karnataka. Pin-560002 (India)",Low Risk,80,0.01,City Market,failed,,,
+2026-06-17 18:13:55,FKUSR01598,"Mysore Road, City Market Circle, Bengaluru, Karnataka. Pin-560002 (India)",Low Risk,80,0.01,City Market,failed,,,
+2026-06-17 18:31:03,FKUSR00218,"Mysore Road, City Market Circle, Bengaluru, Karnataka. Pin-560002 (India)",Low Risk,80,0.01,City Market,failed,,,
+2026-06-17 18:31:03,FKUSR01305,"Mysore Road, City Market Circle, Bengaluru, Karnataka. Pin-560002 (India)",Low Risk,80,0.01,City Market,failed,,,
+2026-06-17 18:31:04,FKUSR01598,"Mysore Road, City Market Circle, Bengaluru, Karnataka. Pin-560002 (India)",Low Risk,80,0.01,City Market,failed,,,
+2026-06-18 10:01:52,FKUSR02263,"T Mariyappa Road, Block 1, Jayanagar East, Bengaluru, Karnataka. Pin-560011 (India)",Medium Risk,80,0.09,Wilson Garden,delivered,,918148091513.0,
+2026-06-18 10:01:53,FKUSR00244,"8th Cross Road, RR Palace, Malleshwaram, Bengaluru, Karnataka. Pin-560003 (India)",Medium Risk,80,0.1,Malleshwaram,delivered,,918148091513.0,
+2026-06-18 10:01:54,FKUSR01448,"Field Marshal KM Cariappa Road, St Patricks Complex, Ashok Nagar, Bengaluru, Karnataka. Pin-560025 (India)",Medium Risk,80,0.02,Ashok Nagar,delivered,,918148091513.0,
+2026-06-18 12:00:00,FKUSR00393,"KR Market Pedestrian Subway, City Market Circle, Bengaluru, Karnataka. Pin-560002 (India)",Low Risk,80,0.0,City Market,failed (missing recipient phone),No recipient phone number available for this officer.,,
+2026-06-18 12:00:00,FKUSR01334,"Hoodi Main Road, Godrej Air Nxt, Hoodi, Bengaluru, Karnataka. Pin-560048 (India)",High Risk,80,0.39,Mahadevapura,failed (missing recipient phone),No recipient phone number available for this officer.,,
+2026-06-18 12:00:00,FKUSR02109,"HAL Airport Road, Ashwath Nagar, Marathahalli, Bengaluru, Karnataka. Pin-560037 (India)",Low Risk,80,0.01,HAL Old Airport,failed (missing recipient phone),No recipient phone number available for this officer.,,
+2026-06-18 16:35:29,FKUSR02645,"KR Main Road, City Market Circle, Bengaluru, Karnataka. Pin-560002 (India)",Low Risk,80,0.01,City Market,delivered,,918148091513.0,
+2026-06-18 16:35:30,FKUSR00266,"Kempegowda Road, Kempe Gowda Circle, Gandhi Nagar, Bengaluru, Karnataka. Pin-560009 (India)",Low Risk,80,0.01,Upparpet,delivered,,918148091513.0,
+2026-06-18 16:35:31,FKUSR02645,"KR Main Road, City Market Circle, Bengaluru, Karnataka. Pin-560002 (India)",Medium Risk,80,0.02,City Market,Acknowledged,,918148091513.0,2026-06-18 16:52:35
+2026-06-18 16:35:36,FKUSR02645,"KR Main Road, City Market Circle, Bengaluru, Karnataka. Pin-560002 (India)",Low Risk,80,0.01,City Market,Acknowledged,,918148091513.0,2026-06-18 16:50:20
+2026-06-18 16:35:36,FKUSR00266,"Kempegowda Road, Kempe Gowda Circle, Gandhi Nagar, Bengaluru, Karnataka. Pin-560009 (India)",Low Risk,80,0.01,Upparpet,Acknowledged,,918148091513.0,2026-06-18 16:49:26
+2026-06-18 16:35:37,FKUSR02645,"KR Main Road, City Market Circle, Bengaluru, Karnataka. Pin-560002 (India)",Medium Risk,80,0.02,City Market,Acknowledged,,918148091513.0,2026-06-18 16:48:37
+2026-06-18 16:56:32,FKUSR02645,"KR Main Road, City Market Circle, Bengaluru, Karnataka. Pin-560002 (India)",Low Risk,80,0.01,City Market,delivered,,918148091513.0,
+2026-06-18 16:56:35,FKUSR00266,"Kempegowda Road, Kempe Gowda Circle, Gandhi Nagar, Bengaluru, Karnataka. Pin-560009 (India)",Low Risk,80,0.01,Upparpet,delivered,,918148091513.0,
+2026-06-18 16:56:36,FKUSR02645,"KR Main Road, City Market Circle, Bengaluru, Karnataka. Pin-560002 (India)",Medium Risk,80,0.02,City Market,Acknowledged,,918148091513.0,2026-06-18 16:56:40
+2026-06-18 17:00:03,FKUSR00575,"KR Main Road, City Market Circle, Bengaluru, Karnataka. Pin-560002 (India)",Medium Risk,80,0.02,City Market,failed (missing recipient phone),No recipient phone number available for this officer.,
+2026-06-18 17:00:03,FKUSR00575,"KR Main Road, City Market Circle, Bengaluru, Karnataka. Pin-560002 (India)",Medium Risk,80,0.02,City Market,failed (missing recipient phone),No recipient phone number available for this officer.,
+2026-06-18 17:00:04,FKUSR01561,"KR Main Road, City Market Circle, Bengaluru, Karnataka. Pin-560002 (India)",Low Risk,80,0.01,City Market,failed (missing recipient phone),No recipient phone number available for this officer.,
