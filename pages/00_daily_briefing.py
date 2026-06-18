@@ -33,7 +33,7 @@ snap = briefing["snapshot"]
 
 hc1, hc2, hc3 = st.columns([2, 3, 2])
 with hc1:
-    st.markdown("### 🅿️ **SENTRI**")
+    st.markdown("###  **SENTRI**")
     st.caption("Parking Intelligence")
 with hc2:
     st.markdown(
