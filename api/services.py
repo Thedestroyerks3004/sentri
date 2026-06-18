@@ -71,6 +71,16 @@ class DataStore:
 store = DataStore()
 
 
+def warm_caches() -> None:
+    """Precompute the most-used responses once the data store is ready."""
+    if store.violations.empty or store.zones.empty:
+        return
+    store.summary_cache = get_summary()
+    store.repeat_offenders_cache = get_repeat_offenders()
+    store.station_cache = get_station_performance()
+    store.feedback_cache = get_feedback_loop()
+
+
 def rejection_rate(series: pd.Series) -> float:
     approved = (series == "Approved").sum()
     rejected = (series == "Rejected").sum()

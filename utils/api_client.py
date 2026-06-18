@@ -6,11 +6,11 @@ import streamlit as st
 API_BASE = os.getenv("SENTRI_API_URL", "http://127.0.0.1:8000")
 
 
-@st.cache_data(ttl=300, show_spinner=False)
+@st.cache_data(ttl=60, show_spinner=False)
 def _get(path: str, params: dict | None = None):
     url = f"{API_BASE}{path}"
     try:
-        resp = requests.get(url, params=params, timeout=120)
+        resp = requests.get(url, params=params, timeout=30)
         resp.raise_for_status()
         return resp.json()
     except requests.HTTPError as exc:
@@ -36,12 +36,12 @@ def api_available() -> bool:
         return False
 
 
-@st.cache_data(ttl=300, show_spinner=False)
+@st.cache_data(ttl=60, show_spinner=False)
 def get_summary() -> dict:
     return _get("/api/stats/summary")
 
 
-@st.cache_data(ttl=300, show_spinner=False)
+@st.cache_data(ttl=60, show_spinner=False)
 def get_hotspots(risk_tier: str | None = None, limit: int = 500) -> list:
     params = {"limit": limit}
     if risk_tier:
@@ -49,52 +49,52 @@ def get_hotspots(risk_tier: str | None = None, limit: int = 500) -> list:
     return _get("/api/hotspots", params)
 
 
-@st.cache_data(ttl=300, show_spinner=False)
+@st.cache_data(ttl=60, show_spinner=False)
 def get_junctions(limit: int = 50) -> list:
     return _get("/api/junctions", {"limit": limit})
 
 
-@st.cache_data(ttl=300, show_spinner=False)
+@st.cache_data(ttl=60, show_spinner=False)
 def get_anomalies(min_score: float = 0.0, limit: int = 500) -> list:
     return _get("/api/anomalies", {"min_score": min_score, "limit": limit})
 
 
-@st.cache_data(ttl=300, show_spinner=False)
+@st.cache_data(ttl=60, show_spinner=False)
 def get_forecast(location: str) -> dict:
     return _get(f"/api/forecast/{location}")
 
 
-@st.cache_data(ttl=300, show_spinner=False)
+@st.cache_data(ttl=60, show_spinner=False)
 def get_scheduler(hour: int, day: int, limit: int = 10) -> list:
     return _get("/api/scheduler", {"hour": hour, "day": day, "limit": limit})
 
 
-@st.cache_data(ttl=300, show_spinner=False)
+@st.cache_data(ttl=60, show_spinner=False)
 def get_vehicle(vehicle_number: str) -> dict:
     return _get(f"/api/vehicle/{vehicle_number}")
 
 
-@st.cache_data(ttl=300, show_spinner=False)
+@st.cache_data(ttl=60, show_spinner=False)
 def get_night_paradox() -> dict:
     return _get("/api/night-paradox")
 
 
-@st.cache_data(ttl=300, show_spinner=False)
+@st.cache_data(ttl=60, show_spinner=False)
 def get_bulk_filing() -> dict:
     return _get("/api/bulk-filing")
 
 
-@st.cache_data(ttl=300, show_spinner=False)
+@st.cache_data(ttl=60, show_spinner=False)
 def get_station_performance() -> dict:
     return _get("/api/station-performance")
 
 
-@st.cache_data(ttl=300, show_spinner=False)
+@st.cache_data(ttl=60, show_spinner=False)
 def get_repeat_offenders() -> dict:
     return _get("/api/repeat-offenders")
 
 
-@st.cache_data(ttl=300, show_spinner=False)
+@st.cache_data(ttl=60, show_spinner=False)
 def get_feedback_loop(loc_key: str | None = None) -> dict:
     params = {}
     if loc_key:
@@ -102,7 +102,7 @@ def get_feedback_loop(loc_key: str | None = None) -> dict:
     return _get("/api/feedback-loop", params)
 
 
-@st.cache_data(ttl=300, show_spinner=False)
+@st.cache_data(ttl=60, show_spinner=False)
 def get_patrol_map(
     hour: int = 5,
     day: int = 0,
@@ -116,11 +116,11 @@ def get_patrol_map(
     return _get("/api/patrol-map", params)
 
 
-@st.cache_data(ttl=300, show_spinner=False)
+@st.cache_data(ttl=60, show_spinner=False)
 def get_zone_detail(loc_key: str) -> dict:
     return _get(f"/api/zone/{loc_key}")
 
 
-@st.cache_data(ttl=300, show_spinner=False)
+@st.cache_data(ttl=60, show_spinner=False)
 def get_daily_briefing() -> dict:
     return _get("/api/daily-briefing")

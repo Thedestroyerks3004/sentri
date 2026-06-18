@@ -1,5 +1,6 @@
+import asyncio
 import time
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,10 +10,23 @@ from api.intelligence import get_daily_briefing, get_patrol_map, get_zone_detail
 from dispatcher import acknowledge_latest_dispatch, read_dispatch_log, run_dispatch_cycle
 
 
+async def refresh_cache_loop() -> None:
+    while True:
+        await asyncio.sleep(300)
+        services.warm_caches()
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     services.store.load()
-    yield
+    services.warm_caches()
+    task = asyncio.create_task(refresh_cache_loop())
+    try:
+        yield
+    finally:
+        task.cancel()
+        with suppress(asyncio.CancelledError):
+            await task
 
 
 app = FastAPI(title="SENTRI API", version="1.0.0", lifespan=lifespan)
