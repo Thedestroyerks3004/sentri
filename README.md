@@ -1,11 +1,11 @@
 
-# ParkIQ
+# SENTRI - Smart Enforcement Network for Traffic Risk Intelligence
 
-ParkIQ is a Bengaluru parking intelligence platform designed to help enforcement teams detect, prioritize, and respond to parking violations more effectively. The system combines historical violation data, anomaly detection, forecasting, patrol planning, and optional SMS dispatching into a single dashboard.
+SENTRI is a Bengaluru parking intelligence platform designed to help enforcement teams detect, prioritize, and respond to parking violations more effectively. The system combines historical violation data, anomaly detection, forecasting, patrol planning, and optional SMS dispatching into a single dashboard.
 
 ## Overview
 
-ParkIQ answers three core questions:
+SENTRI answers three core questions:
 
 - Where are violations most likely to happen next?
 - Which locations need immediate patrol attention?
@@ -128,8 +128,8 @@ Required variables for SMS dispatch:
 
 Optional runtime variables:
 
-- `PARKIQ_API_URL`
-- `PARKIQ_API_PORT`
+- `SENTRI_API_URL`
+- `SENTRI_API_PORT`
 
 You can configure these manually in your shell or use the provided script [start_app.ps1](start_app.ps1).
 
@@ -205,6 +205,6 @@ These artifacts are used to power the dashboard without recomputing everything o
 
 This project is intended for internal operational and research use.
 =======
-# sentri
+# SENTRI
 SENTRI transforms 298,450 real Bengaluru parking violation records  into a live enforcement command system. Instead of reactive patrolling,  officers receive proactive SMS dispatch orders based on predicted  violation spikes — before congestion forms.
 
