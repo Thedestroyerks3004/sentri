@@ -33,6 +33,8 @@ pages = [
     st.Page("pages/03_anomaly_detector.py", title="Anomaly Detector", icon="🤖"),
     st.Page("pages/04_repeat_offenders.py", title="Repeat Offenders", icon="🔁"),
     st.Page("pages/05_station_audit.py", title="Station Audit", icon="📊"),
+    st.Page("pages/07_situation_room.py", title="Situation Room", icon="🧠"),
+    st.Page("pages/08_intelligence_map.py", title="Intelligence Map", icon="🗺️"),
     st.Page("pages/06_about.py", title="About / Integration Guide", icon="ℹ️"),
 ]
 
