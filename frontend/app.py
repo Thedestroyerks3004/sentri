@@ -1,3 +1,6 @@
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import os
 
 import streamlit as st
@@ -35,3 +38,5 @@ pages = [
 
 pg = st.navigation(pages)
 pg.run()
+
+

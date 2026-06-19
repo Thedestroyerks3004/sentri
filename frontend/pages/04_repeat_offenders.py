@@ -1,3 +1,6 @@
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 import folium
 import plotly.graph_objects as go
 import pandas as pd
@@ -44,3 +47,4 @@ st.dataframe(top50, use_container_width=True, hide_index=True, height=360)
 fig = go.Figure(go.Bar(x=dist["bucket"], y=dist["vehicles"], marker_color="#3b82f6"))
 fig.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", height=320)
 st.plotly_chart(fig, use_container_width=True)
+

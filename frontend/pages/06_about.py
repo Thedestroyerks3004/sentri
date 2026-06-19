@@ -1,3 +1,6 @@
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 import streamlit as st
 
 from frontend.utils.ui import apply_brand, page_header
@@ -64,3 +67,4 @@ Anomaly Detector page + Integrity Alerts in the Daily Briefing.
 4. **Anomaly Detector** — what's wrong (Isolation Forest)
 5. **Station Audit** — who's failing (rejection rates)
 """)
+

@@ -1,3 +1,6 @@
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 import plotly.graph_objects as go
 import pandas as pd
 import streamlit as st
@@ -52,3 +55,4 @@ st.info(
     "Forecasts feed the Daily Briefing and Patrol Map. "
     "A spike tomorrow at 4 AM at Safina Plaza → deploy officers tonight."
 )
+

@@ -1,3 +1,6 @@
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
@@ -53,3 +56,4 @@ with c1:
 with c2:
     st.subheader("Bottom 5 — lowest rejection")
     st.dataframe(stations.tail(5), use_container_width=True, hide_index=True)
+

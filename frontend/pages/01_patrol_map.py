@@ -1,3 +1,6 @@
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 import folium
 import pandas as pd
 import plotly.graph_objects as go
@@ -240,3 +243,4 @@ if patrol_tonight and not df.empty:
         "**Priority patrol (next 3 hours):** "
         + " · ".join(f"{r['zone_name'][:30]} ({r['risk_tier']})" for _, r in top5.iterrows())
     )
+
