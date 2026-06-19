@@ -10,10 +10,10 @@ import pandas as pd
 import requests
 from twilio.rest import Client
 
-from api import services
-from dispatch_utils import find_nearest_officer
+from backend.api import services
+from backend.dispatch_utils import find_nearest_officer
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parent.parent
 LOG_PATH = ROOT / "dispatch_log.csv"
 DEBUG_LOG_PATH = ROOT / "dispatch_debug.log"
 OFFICER_LOC_PATH = ROOT / "officer_locations.csv"

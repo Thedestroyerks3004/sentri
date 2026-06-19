@@ -2,8 +2,8 @@ import plotly.graph_objects as go
 import pandas as pd
 import streamlit as st
 
-from utils.api_client import get_forecast
-from utils.ui import page_header
+from frontend.utils.api_client import get_forecast
+from frontend.utils.ui import page_header
 
 page_header(
     "🔮 Violation Forecast",

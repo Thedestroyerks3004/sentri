@@ -3,11 +3,13 @@ import time
 from contextlib import asynccontextmanager, suppress
 
 from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
+from huggingface_hub import snapshot_download
 
-from api import services
-from api.intelligence import get_daily_briefing, get_patrol_map, get_zone_detail
-from dispatcher import acknowledge_latest_dispatch, read_dispatch_log, run_dispatch_cycle
+from backend.api import services
+from backend.api.intelligence import get_daily_briefing, get_patrol_map, get_zone_detail
+from backend.dispatcher import acknowledge_latest_dispatch, read_dispatch_log, run_dispatch_cycle
 
 
 async def refresh_cache_loop() -> None:
@@ -18,6 +20,11 @@ async def refresh_cache_loop() -> None:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    snapshot_download(
+        repo_id="thedestroyerks3004/sentri-artifacts",
+        repo_type="dataset",
+        local_dir="/app/artifacts",
+    )
     services.store.load()
     services.warm_caches()
     task = asyncio.create_task(refresh_cache_loop())
@@ -47,6 +54,11 @@ async def log_request_timing(request: Request, call_next):
     print(f"[TIMING] {request.method} {request.url.path} took {elapsed:.4f}s")
     response.headers["X-Process-Time"] = f"{elapsed:.6f}"
     return response
+
+
+@app.get("/health")
+def health_check():
+    return {"status": "ok"}
 
 
 @app.get("/api/stats/summary")
@@ -123,27 +135,34 @@ def feedback_loop(loc_key: str | None = Query(None)):
 
 
 @app.get("/api/patrol-map")
-def patrol_map(
+async def patrol_map(
     hour: int = Query(5, ge=0, le=23),
     day: int = Query(0, ge=0, le=6),
     limit: int = Query(200, le=500),
     patrol_tonight: bool = Query(False),
     search: str | None = Query(None),
 ):
-    return get_patrol_map(hour=hour, day=day, limit=limit, patrol_tonight=patrol_tonight, search=search)
+    return await run_in_threadpool(
+        get_patrol_map,
+        hour=hour,
+        day=day,
+        limit=limit,
+        patrol_tonight=patrol_tonight,
+        search=search,
+    )
 
 
 @app.get("/api/zone/{loc_key}")
-def zone_detail(loc_key: str):
-    result = get_zone_detail(loc_key)
+async def zone_detail(loc_key: str):
+    result = await run_in_threadpool(get_zone_detail, loc_key)
     if result.get("error"):
         raise HTTPException(status_code=404, detail=result["error"])
     return result
 
 
 @app.get("/api/daily-briefing")
-def daily_briefing():
-    return get_daily_briefing()
+async def daily_briefing():
+    return await run_in_threadpool(get_daily_briefing)
 
 
 @app.post("/api/dispatch/run")

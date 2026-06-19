@@ -1,7 +1,7 @@
 import time
 import pandas as pd
-from api import services
-from api.intelligence import get_daily_briefing, get_patrol_map, _city_risk_level, _now_ist, DOW_NAMES
+from backend.api import services
+from backend.api.intelligence import get_daily_briefing, get_patrol_map, _city_risk_level, _now_ist, DOW_NAMES
 
 services.store.load()
 now = _now_ist()

@@ -7,7 +7,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 ARTIFACTS = ROOT / "artifacts"
 FORECAST_DIR = ARTIFACTS / "forecasts"
 
@@ -79,6 +79,14 @@ def warm_caches() -> None:
     store.repeat_offenders_cache = get_repeat_offenders()
     store.station_cache = get_station_performance()
     store.feedback_cache = get_feedback_loop()
+
+    # These endpoints are expensive on first request because they build large
+    # summary objects over the full dataset. Precompute them once at startup so
+    # the first dashboard load avoids waiting on a cold cache.
+    from backend.api.intelligence import get_daily_briefing, get_patrol_map
+
+    get_daily_briefing()
+    get_patrol_map(hour=5, day=0, limit=50, patrol_tonight=False)
 
 
 def rejection_rate(series: pd.Series) -> float:

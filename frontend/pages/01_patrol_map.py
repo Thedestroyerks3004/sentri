@@ -4,8 +4,8 @@ import plotly.graph_objects as go
 import streamlit as st
 from streamlit_folium import st_folium
 
-from utils.api_client import get_patrol_map, get_zone_detail
-from utils.ui import apply_brand
+from frontend.utils.api_client import get_patrol_map, get_zone_detail
+from frontend.utils.ui import apply_brand
 
 apply_brand()
 

@@ -3,8 +3,8 @@ import pandas as pd
 import streamlit as st
 from streamlit_folium import st_folium
 
-from utils.api_client import get_anomalies
-from utils.ui import insight, page_header, wow_moment
+from frontend.utils.api_client import get_anomalies
+from frontend.utils.ui import insight, page_header, wow_moment
 
 page_header(
     "🤖 Anomaly Detector",

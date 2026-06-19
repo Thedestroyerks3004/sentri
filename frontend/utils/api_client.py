@@ -4,13 +4,19 @@ import requests
 import streamlit as st
 
 API_BASE = os.getenv("SENTRI_API_URL", "http://127.0.0.1:8000")
+CONNECT_TIMEOUT = 3
+READ_TIMEOUT = 30
 
 
 @st.cache_data(ttl=60, show_spinner=False)
 def _get(path: str, params: dict | None = None):
     url = f"{API_BASE}{path}"
     try:
-        resp = requests.get(url, params=params, timeout=30)
+        resp = requests.get(
+            url,
+            params=params,
+            timeout=(CONNECT_TIMEOUT, READ_TIMEOUT),
+        )
         resp.raise_for_status()
         return resp.json()
     except requests.HTTPError as exc:
@@ -23,16 +29,13 @@ def _get(path: str, params: dict | None = None):
 
 @st.cache_data(ttl=5, show_spinner=False)
 def api_available() -> bool:
-    required_paths = (
-        "/api/stats/summary",
-        "/api/daily-briefing",
-    )
     try:
-        return all(
-            requests.get(f"{API_BASE}{path}", timeout=15).status_code == 200
-            for path in required_paths
+        response = requests.get(
+            f"{API_BASE}/health",
+            timeout=(CONNECT_TIMEOUT, READ_TIMEOUT),
         )
-    except Exception:
+        return response.status_code == 200
+    except requests.RequestException:
         return False
 
 

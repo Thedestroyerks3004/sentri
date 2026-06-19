@@ -6,9 +6,9 @@ import streamlit as st
 
 API_BASE = os.getenv("SENTRI_API_URL", "http://127.0.0.1:8000").rstrip("/")
 
-from utils.api_client import api_available, get_daily_briefing
-from utils.pdf_briefing import generate_briefing_pdf
-from utils.ui import apply_brand, format_indian
+from frontend.utils.api_client import api_available, get_daily_briefing
+from frontend.utils.pdf_briefing import generate_briefing_pdf
+from frontend.utils.ui import apply_brand, format_indian
 
 apply_brand()
 

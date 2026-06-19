@@ -2,8 +2,8 @@ import os
 
 import streamlit as st
 
-from utils.api_client import api_available
-from utils.ui import apply_brand
+from frontend.utils.api_client import api_available
+from frontend.utils.ui import apply_brand
 
 st.set_page_config(
     page_title="SENTRI — Bengaluru Parking Intelligence",

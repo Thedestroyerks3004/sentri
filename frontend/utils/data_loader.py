@@ -6,7 +6,7 @@ import streamlit as st
 NIGHT_BUCKETS = ["Late Night (12AM-6AM)", "Night (10PM-12AM)"]
 NIGHT_HOURS = set(range(0, 6)) | {22, 23}
 
-DATA_PATH = Path(__file__).resolve().parent.parent / "data" / "parking_violations_clean.csv"
+DATA_PATH = Path(__file__).resolve().parents[2] / "data" / "parking_violations_clean.csv"
 
 
 @st.cache_data(show_spinner="Loading 298K violation records…")

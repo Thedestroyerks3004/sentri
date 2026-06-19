@@ -4,8 +4,8 @@ import pandas as pd
 import streamlit as st
 from streamlit_folium import st_folium
 
-from utils.api_client import get_repeat_offenders, get_vehicle
-from utils.ui import page_header, wow_moment
+from frontend.utils.api_client import get_repeat_offenders, get_vehicle
+from frontend.utils.ui import page_header, wow_moment
 
 page_header("🔁 Repeat Offenders", "3,489 vehicles with 5+ violations — zero institutional memory.")
 

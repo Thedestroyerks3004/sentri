@@ -2,12 +2,13 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 from functools import lru_cache
+from threading import RLock
 
 import numpy as np
 import pandas as pd
 import pytz
 
-from api.services import DOW_NAMES, JUNCTION_SLUGS, store
+from backend.api.services import DOW_NAMES, JUNCTION_SLUGS, store
 
 IST = pytz.timezone("Asia/Kolkata")
 
@@ -216,7 +217,7 @@ def get_patrol_map(
     if search:
         q = search.strip().lower()
         mask = (
-            top_zones["location"].str.lower().str.contains(q, na=False)
+            top_zones["location"].str.lower().str.contains(q, na=False, regex=False)
             | top_zones["police_station"].str.lower().str.contains(q, na=False)
         )
         junc_keys = store.violations[
@@ -294,8 +295,11 @@ def get_zone_detail(loc_key: str) -> dict:
     return {**row, "hourly_pattern": hourly.to_dict(orient="records"), "forecast": daily_fc}
 
 
+_daily_briefing_lock = RLock()
+
+
 @lru_cache(maxsize=1)
-def get_daily_briefing() -> dict:
+def _compute_daily_briefing() -> dict:
     now = _now_ist()
     day_idx = now.weekday()
     day_name = DOW_NAMES[day_idx]
@@ -314,13 +318,9 @@ def get_daily_briefing() -> dict:
     same_hour = store.violations[store.violations["hour_int"] == current_hour]
     active_hotspots = int(same_hour["loc_key"].nunique())
 
-    repeat_week = (
-        recent.groupby("vehicle_number")
-        .filter(lambda g: len(g) >= 2)
-        .groupby("vehicle_number")
-        .size()
-    )
-    repeat_flagged = int(len(repeat_week))
+    vehicle_counts = recent.groupby("vehicle_number").size().rename("violations")
+    repeat_vehicle_numbers = vehicle_counts[vehicle_counts >= 2].index
+    repeat_flagged = int(repeat_vehicle_numbers.size)
 
     integrity_count = int(recent["is_anomaly"].sum())
     live_window = store.violations[
@@ -388,7 +388,8 @@ def get_daily_briefing() -> dict:
         })
 
     repeat_active = (
-        recent.groupby("vehicle_number")
+        recent.loc[recent["vehicle_number"].isin(repeat_vehicle_numbers)]
+        .groupby("vehicle_number", sort=False)
         .agg(
             violations=("id", "count"),
             vehicle_type=("vehicle_type_clean", "first"),
@@ -396,7 +397,6 @@ def get_daily_briefing() -> dict:
             stations=("police_station", lambda s: ", ".join(sorted(s.unique()[:2]))),
         )
         .reset_index()
-        .query("violations >= 2")
         .sort_values("violations", ascending=False)
         .head(10)
     )
@@ -463,3 +463,8 @@ def get_daily_briefing() -> dict:
         "repeat_offenders_active": repeat_active.to_dict(orient="records"),
         "station_performance": stations.to_dict(orient="records"),
     }
+
+
+def get_daily_briefing() -> dict:
+    with _daily_briefing_lock:
+        return _compute_daily_briefing()

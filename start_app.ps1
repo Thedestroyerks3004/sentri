@@ -16,8 +16,30 @@ $env:SENTRI_API_URL      = "http://127.0.0.1:8000"
 
 Write-Host "Starting SENTRI API and UI with the configured environment..."
 
-Start-Process -FilePath $pythonExe -ArgumentList "run_api.py" -WorkingDirectory $projectPath -WindowStyle Normal
-Start-Process -FilePath $pythonExe -ArgumentList "-m streamlit run app.py" -WorkingDirectory $projectPath -WindowStyle Normal
+$apiProcess = Start-Process -FilePath $pythonExe -ArgumentList "-m backend.run_api" -WorkingDirectory $projectPath -WindowStyle Normal -PassThru
+
+$apiUrl = "$env:SENTRI_API_URL/health"
+$deadline = (Get-Date).AddSeconds(45)
+$apiReady = $false
+
+while ((Get-Date) -lt $deadline) {
+    try {
+        $response = Invoke-WebRequest -Uri $apiUrl -Method Get -TimeoutSec 3
+        if ($response.StatusCode -eq 200) {
+            $apiReady = $true
+            break
+        }
+    }
+    catch {
+        Start-Sleep -Seconds 1
+    }
+}
+
+if (-not $apiReady) {
+    Write-Warning "API did not become ready within 45 seconds. Starting UI anyway."
+}
+
+Start-Process -FilePath $pythonExe -ArgumentList "-m streamlit run frontend/app.py" -WorkingDirectory $projectPath -WindowStyle Normal
 
 Write-Host "API/UI launched."
 Write-Host "To change credentials later, edit the values at the top of this script and rerun it."

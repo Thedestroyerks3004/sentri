@@ -1,6 +1,6 @@
 import streamlit as st
 
-from utils.ui import apply_brand, page_header
+from frontend.utils.ui import apply_brand, page_header
 
 page_header("ℹ️ About & Integration Guide", "How SENTRI connects to existing Bengaluru enforcement systems.")
 

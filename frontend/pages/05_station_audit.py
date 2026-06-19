@@ -3,8 +3,8 @@ import plotly.graph_objects as go
 import pandas as pd
 import streamlit as st
 
-from utils.api_client import get_station_performance
-from utils.ui import page_header, wow_moment
+from frontend.utils.api_client import get_station_performance
+from frontend.utils.ui import page_header, wow_moment
 
 page_header("📊 Station Audit", "Rejection rate = rejected ÷ (approved + rejected).")
 

@@ -1,6 +1,7 @@
 """Start the SENTRI API server.
 
-Use: python run_api.py
+Use from the project root:
+    python -m backend.run_api
 
 Windows notes:
 - Do not use `uvicorn` directly (App Control may block uvicorn.exe).
@@ -11,9 +12,14 @@ from __future__ import annotations
 import os
 import socket
 import sys
+from pathlib import Path
 
 import requests
 import uvicorn
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 HOST = "127.0.0.1"
 DEFAULT_PORT = int(os.getenv("SENTRI_API_PORT", "8000"))
@@ -25,12 +31,9 @@ def _port_in_use(port: int) -> bool:
 
 
 def _api_healthy(port: int) -> bool:
-    required_paths = (
-        f"http://{HOST}:{port}/api/stats/summary",
-        f"http://{HOST}:{port}/api/daily-briefing",
-    )
+    health_url = f"http://{HOST}:{port}/health"
     try:
-        return all(requests.get(url, timeout=30).status_code == 200 for url in required_paths)
+        return requests.get(health_url, timeout=3).status_code == 200
     except Exception:
         return False
 
@@ -66,7 +69,7 @@ def main() -> None:
         port = alt
 
     print(f"Starting SENTRI API at http://{HOST}:{port}")
-    uvicorn.run("api.main:app", host=HOST, port=port, reload=False)
+    uvicorn.run("backend.api.main:app", host=HOST, port=port, reload=False)
 
 
 if __name__ == "__main__":
