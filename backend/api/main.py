@@ -10,6 +10,7 @@ from huggingface_hub import snapshot_download
 from backend.api import services
 from backend.api.intelligence import get_daily_briefing, get_patrol_map, get_zone_detail
 from backend.dispatcher import acknowledge_latest_dispatch, read_dispatch_log, run_dispatch_cycle
+from backend.api.services import SHIFT_WINDOWS, get_shift_intelligence
 
 
 async def refresh_cache_loop() -> None:
@@ -129,6 +130,16 @@ def repeat_offenders():
     return services.get_repeat_offenders()
 
 
+@app.get("/api/commercial-impact")
+def commercial_impact():
+    return services.get_commercial_impact()
+
+
+@app.get("/api/offender-fingerprint")
+def offender_fingerprint():
+    return services.get_offender_fingerprint()
+
+
 @app.get("/api/feedback-loop")
 def feedback_loop(loc_key: str | None = Query(None)):
     return services.get_feedback_loop(loc_key=loc_key)
@@ -178,3 +189,7 @@ def dispatch_acknowledge():
 @app.get("/api/dispatch/log")
 def dispatch_log(limit: int = Query(20, ge=1, le=100)):
     return read_dispatch_log(limit=limit)
+
+@app.get("/api/shift-intelligence")
+def shift_intelligence(shift: str = "Morning") -> dict:
+    return get_shift_intelligence(shift=shift)

@@ -113,13 +113,15 @@ The backend exposes REST endpoints under `/api` and `/health`.
 - `GET /health` — check whether the API is running
 - `GET /api/stats/summary` — high-level KPI summary
 - `GET /api/hotspots` — zone risk and hotspot rankings
-- `GET /api/forecast/{location}` — forecast for a location or junction
+- `GET /api/forecast/{location}` — forecast for a location or junction, including `yhat_lower` and `yhat_upper` confidence bounds
 - `GET /api/patrol-map` — patrol recommendations and map markers
 - `GET /api/daily-briefing` — dashboard briefing payload
 - `GET /api/repeat-offenders` — repeat vehicle analysis
 - `GET /api/station-performance` — station-level performance metrics
 - `GET /api/anomalies` — anomaly detection results
-- `POST /api/dispatch/run` — trigger dispatch cycle
+- `GET /api/commercial-impact` — weekly fine revenue and commercial delay-cost analysis
+- `GET /api/offender-fingerprint` — vehicle pattern classification and organized-cluster summaries
+- `POST /api/dispatch/run` — trigger the standard dispatch cycle
 - `POST /api/dispatch/acknowledge` — acknowledge latest dispatch
 - `GET /api/dispatch/log` — fetch dispatch history
 
@@ -134,6 +136,8 @@ The main dashboard is defined in [frontend/app.py](frontend/app.py). It loads th
 - [frontend/pages/04_repeat_offenders.py](frontend/pages/04_repeat_offenders.py) — repeat offender analysis
 - [frontend/pages/05_station_audit.py](frontend/pages/05_station_audit.py) — station audit details
 - [frontend/pages/06_about.py](frontend/pages/06_about.py) — integration and usage guide
+- [frontend/pages/09_commercial_impact.py](frontend/pages/09_commercial_impact.py) — weekly revenue and delay-cost analysis
+- [frontend/pages/10_offender_fingerprint.py](frontend/pages/10_offender_fingerprint.py) — vehicle pattern fingerprinting and cluster views
 
 ## Data flow
 
@@ -142,6 +146,7 @@ The main dashboard is defined in [frontend/app.py](frontend/app.py). It loads th
 3. Results are exported into [artifacts](artifacts).
 4. The FastAPI service loads these artifacts during startup.
 5. The Streamlit dashboard calls the API to display intelligence and recommendations.
+6. The Situation Room page now performs question-aware routing across multiple artifacts and services and includes a confirm-before-dispatch flow before running the standard dispatch cycle.
 
 ## Dispatch workflow
 

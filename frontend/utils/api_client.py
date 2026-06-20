@@ -98,6 +98,16 @@ def get_repeat_offenders() -> dict:
 
 
 @st.cache_data(ttl=60, show_spinner=False)
+def get_commercial_impact() -> dict:
+    return _get("/api/commercial-impact")
+
+
+@st.cache_data(ttl=60, show_spinner=False)
+def get_offender_fingerprint() -> dict:
+    return _get("/api/offender-fingerprint")
+
+
+@st.cache_data(ttl=60, show_spinner=False)
 def get_feedback_loop(loc_key: str | None = None) -> dict:
     params = {}
     if loc_key:

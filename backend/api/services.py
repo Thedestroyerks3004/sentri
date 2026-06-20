@@ -185,11 +185,33 @@ def get_forecast(location: str) -> dict:
                 break
     if key not in store.forecasts:
         return {"location": location, "forecast": [], "error": "Location not found"}
+
+    forecast_rows = store.forecasts[key]
+    for row in forecast_rows:
+        if "yhat_lower" not in row and "yhat_upper" not in row:
+            continue
+
     return {
         "location": key,
         "label": JUNCTION_SLUGS.get(key, key),
-        "forecast": store.forecasts[key],
+        "forecast": forecast_rows,
     }
+
+
+def get_commercial_impact() -> dict:
+    path = ARTIFACTS / "commercial_impact.json"
+    if not path.exists():
+        return {"error": "commercial impact artifact not found"}
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def get_offender_fingerprint() -> dict:
+    path = ARTIFACTS / "offender_fingerprint.json"
+    if not path.exists():
+        return {"error": "offender fingerprint artifact not found"}
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
 
 
 def get_scheduler(hour: int, day: int, limit: int = 10) -> list[dict]:
@@ -422,3 +444,118 @@ def get_feedback_loop(loc_key: str | None = None) -> dict:
     if loc_key is None:
         store.feedback_cache = result
     return result
+
+SHIFT_WINDOWS = {
+    "Morning": (6, 10),
+    "Afternoon": (10, 17),
+    "Evening": (17, 22),
+    "Night": (22, 6),  # wraps midnight, handled specially below
+}
+
+
+def _hours_in_window(start: int, end: int) -> list[int]:
+    if start < end:
+        return list(range(start, end))
+    # Wrapping window (e.g. Night: 22 -> 6 means 22,23,0,1,...,5)
+    return list(range(start, 24)) + list(range(0, end))
+
+
+def get_shift_intelligence(shift: str = "Morning") -> dict:
+    """
+    Real hour-filtered intelligence for a shift window, replacing the old
+    Intelligence Map page's "Time of day filter" -- which changed the page
+    title but never actually filtered any data. Every number returned here
+    is computed from violations whose hour_int actually falls in the
+    selected window.
+    """
+    if shift not in SHIFT_WINDOWS:
+        shift = "Morning"
+    start, end = SHIFT_WINDOWS[shift]
+    hours = _hours_in_window(start, end)
+
+    df = store.violations
+    shift_df = df[df["hour_int"].isin(hours)]
+
+    if shift_df.empty:
+        return {
+            "shift": shift,
+            "hour_range": f"{start:02d}:00–{end:02d}:00",
+            "total_violations": 0,
+            "share_of_all_violations_pct": 0.0,
+            "hourly_profile": [],
+            "top_zones": [],
+            "top_violation_types": [],
+            "top_vehicle_types": [],
+            "top_stations": [],
+        }
+
+    total_all = len(df)
+    total_shift = len(shift_df)
+
+    # Hourly profile across the full 24h, so the selected window can be
+    # highlighted in context rather than shown in isolation.
+    hourly_counts = df.groupby("hour_int").size().reindex(range(24), fill_value=0)
+    hourly_profile = [
+        {"hour": h, "count": int(hourly_counts.get(h, 0)), "in_window": h in hours}
+        for h in range(24)
+    ]
+
+    # Top zones for this shift window specifically -- real ranking by
+    # actual violation count in the filtered set, not a fabricated beat
+    # boundary based on raw latitude bands.
+    zone_counts = (
+        shift_df.groupby("loc_key", dropna=False)
+        .agg(
+            violations=("id", "count"),
+            location=("location", "first"),
+            police_station=("police_station", "first"),
+        )
+        .reset_index()
+        .sort_values("violations", ascending=False)
+        .head(10)
+    )
+    zone_risk_lookup = store.zones.set_index("loc_key")[["risk_tier", "pcis"]] if not store.zones.empty else pd.DataFrame()
+    zone_counts = zone_counts.merge(
+        zone_risk_lookup, left_on="loc_key", right_index=True, how="left"
+    )
+    zone_counts["risk_tier"] = zone_counts["risk_tier"].fillna("Unrated")
+    zone_counts["pcis"] = zone_counts["pcis"].fillna(0)
+
+    top_zones = [
+        {
+            "loc_key": r.loc_key,
+            "location": r.location,
+            "police_station": r.police_station,
+            "violations": int(r.violations),
+            "risk_tier": r.risk_tier,
+            "pcis": round(float(r.pcis), 1),
+        }
+        for r in zone_counts.itertuples(index=False)
+    ]
+
+    top_violation_types = (
+        shift_df["violation_type_parsed"].value_counts().head(6).reset_index()
+    )
+    top_violation_types.columns = ["violation_type", "count"]
+
+    top_vehicle_types = (
+        shift_df["vehicle_type_clean"].value_counts().head(6).reset_index()
+    )
+    top_vehicle_types.columns = ["vehicle_type", "count"]
+
+    top_stations = (
+        shift_df["police_station"].value_counts().head(8).reset_index()
+    )
+    top_stations.columns = ["police_station", "count"]
+
+    return {
+        "shift": shift,
+        "hour_range": f"{start:02d}:00–{end:02d}:00",
+        "total_violations": total_shift,
+        "share_of_all_violations_pct": round(total_shift / total_all * 100, 1) if total_all else 0.0,
+        "hourly_profile": hourly_profile,
+        "top_zones": top_zones,
+        "top_violation_types": top_violation_types.to_dict(orient="records"),
+        "top_vehicle_types": top_vehicle_types.to_dict(orient="records"),
+        "top_stations": top_stations.to_dict(orient="records"),
+    }

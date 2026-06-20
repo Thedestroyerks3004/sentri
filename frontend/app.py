@@ -34,7 +34,9 @@ pages = [
     st.Page("pages/04_repeat_offenders.py", title="Repeat Offenders", icon="🔁"),
     st.Page("pages/05_station_audit.py", title="Station Audit", icon="📊"),
     st.Page("pages/07_situation_room.py", title="Situation Room", icon="🧠"),
-    st.Page("pages/08_intelligence_map.py", title="Intelligence Map", icon="🗺️"),
+    st.Page("pages/08_shift_intelligence.py", title="Shift Intelligence", icon="🗺️"),
+    st.Page("pages/09_commercial_impact.py", title="Commercial Impact", icon="💼"),
+    st.Page("pages/10_offender_fingerprint.py", title="Offender Fingerprint", icon="🧭"),
     st.Page("pages/06_about.py", title="About / Integration Guide", icon="ℹ️"),
 ]
 
