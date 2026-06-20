@@ -40,7 +40,7 @@ section[data-testid="stMain"] > div { padding-top: 1.5rem; }
 
 /* Dossier card */
 .dossier-card {
-    background: #1f1781;
+    background: #111318;
     border: 1px solid #1C2030;
     border-radius: 6px;
     overflow: hidden;
@@ -108,6 +108,31 @@ section[data-testid="stMain"] > div { padding-top: 1.5rem; }
     display: block;
     margin-bottom: 3px;
     color: #6E7681;
+}
+
+/* Error card */
+.fp-error {
+    background: #1A0E0E;
+    border: 1px solid #3D1515;
+    border-left: 4px solid #E05C5C;
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 12px 0 24px 0;
+}
+.fp-error-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #E05C5C;
+    margin-bottom: 6px;
+}
+.fp-error-msg {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #8B949E;
+    line-height: 1.6;
 }
 
 /* Divider */
@@ -203,14 +228,22 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ── Data fetch ────────────────────────────────────────────────────────────────
+# get_offender_fingerprint() now always returns a dict — never raises.
+# On API failure it returns {"error": "<message>"} which we handle below.
 data = get_offender_fingerprint()
+
 if data.get("error"):
-    st.warning(data["error"])
+    st.markdown(f"""
+    <div class="fp-error">
+        <div class="fp-error-label">⚠ Classification Engine Unavailable</div>
+        <div class="fp-error-msg">{data['error']}</div>
+    </div>
+    """, unsafe_allow_html=True)
     st.stop()
 
-habitual    = data.get("habitual", {})
+habitual      = data.get("habitual", {})
 opportunistic = data.get("opportunistic", {})
-organized   = data.get("organized_clusters", [])
+organized     = data.get("organized_clusters", [])
 
 # ── Archetype config ──────────────────────────────────────────────────────────
 archetypes = [

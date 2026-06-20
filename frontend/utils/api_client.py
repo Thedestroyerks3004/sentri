@@ -8,7 +8,9 @@ CONNECT_TIMEOUT = 3
 READ_TIMEOUT = 30
 
 
-@st.cache_data(ttl=60, show_spinner=False)
+# ── Private HTTP helper (NOT cached — caching a low-level helper causes
+#    double-cache stacks in tracebacks and can permanently store error
+#    responses until TTL expires) ────────────────────────────────────────────
 def _get(path: str, params: dict | None = None):
     url = f"{API_BASE}{path}"
     try:
@@ -21,12 +23,13 @@ def _get(path: str, params: dict | None = None):
         return resp.json()
     except requests.HTTPError as exc:
         raise RuntimeError(
-            f"API request failed for {url} (HTTP {resp.status_code})"
+            f"API request failed for {url} (HTTP {resp.status_code}): {resp.text[:200]}"
         ) from exc
     except requests.RequestException as exc:
         raise RuntimeError(f"Unable to reach API at {url}: {exc}") from exc
 
 
+# ── Health check ─────────────────────────────────────────────────────────────
 @st.cache_data(ttl=5, show_spinner=False)
 def api_available() -> bool:
     try:
@@ -39,9 +42,16 @@ def api_available() -> bool:
         return False
 
 
+# ── Public API functions ──────────────────────────────────────────────────────
+# Every function catches RuntimeError and returns {"error": "..."} so pages
+# can handle failures gracefully with data.get("error") instead of crashing.
+
 @st.cache_data(ttl=60, show_spinner=False)
 def get_summary() -> dict:
-    return _get("/api/stats/summary")
+    try:
+        return _get("/api/stats/summary")
+    except RuntimeError as e:
+        return {"error": str(e)}
 
 
 @st.cache_data(ttl=60, show_spinner=False)
@@ -49,62 +59,98 @@ def get_hotspots(risk_tier: str | None = None, limit: int = 500) -> list:
     params = {"limit": limit}
     if risk_tier:
         params["risk_tier"] = risk_tier
-    return _get("/api/hotspots", params)
+    try:
+        return _get("/api/hotspots", params)
+    except RuntimeError as e:
+        return []
 
 
 @st.cache_data(ttl=60, show_spinner=False)
 def get_junctions(limit: int = 50) -> list:
-    return _get("/api/junctions", {"limit": limit})
+    try:
+        return _get("/api/junctions", {"limit": limit})
+    except RuntimeError:
+        return []
 
 
 @st.cache_data(ttl=60, show_spinner=False)
 def get_anomalies(min_score: float = 0.0, limit: int = 500) -> list:
-    return _get("/api/anomalies", {"min_score": min_score, "limit": limit})
+    try:
+        return _get("/api/anomalies", {"min_score": min_score, "limit": limit})
+    except RuntimeError:
+        return []
 
 
 @st.cache_data(ttl=60, show_spinner=False)
 def get_forecast(location: str) -> dict:
-    return _get(f"/api/forecast/{location}")
+    try:
+        return _get(f"/api/forecast/{location}")
+    except RuntimeError as e:
+        return {"error": str(e)}
 
 
 @st.cache_data(ttl=60, show_spinner=False)
 def get_scheduler(hour: int, day: int, limit: int = 10) -> list:
-    return _get("/api/scheduler", {"hour": hour, "day": day, "limit": limit})
+    try:
+        return _get("/api/scheduler", {"hour": hour, "day": day, "limit": limit})
+    except RuntimeError:
+        return []
 
 
 @st.cache_data(ttl=60, show_spinner=False)
 def get_vehicle(vehicle_number: str) -> dict:
-    return _get(f"/api/vehicle/{vehicle_number}")
+    try:
+        return _get(f"/api/vehicle/{vehicle_number}")
+    except RuntimeError as e:
+        return {"error": str(e)}
 
 
 @st.cache_data(ttl=60, show_spinner=False)
 def get_night_paradox() -> dict:
-    return _get("/api/night-paradox")
+    try:
+        return _get("/api/night-paradox")
+    except RuntimeError as e:
+        return {"error": str(e)}
 
 
 @st.cache_data(ttl=60, show_spinner=False)
 def get_bulk_filing() -> dict:
-    return _get("/api/bulk-filing")
+    try:
+        return _get("/api/bulk-filing")
+    except RuntimeError as e:
+        return {"error": str(e)}
 
 
 @st.cache_data(ttl=60, show_spinner=False)
 def get_station_performance() -> dict:
-    return _get("/api/station-performance")
+    try:
+        return _get("/api/station-performance")
+    except RuntimeError as e:
+        return {"error": str(e)}
 
 
 @st.cache_data(ttl=60, show_spinner=False)
 def get_repeat_offenders() -> dict:
-    return _get("/api/repeat-offenders")
+    try:
+        return _get("/api/repeat-offenders")
+    except RuntimeError as e:
+        return {"error": str(e)}
 
 
 @st.cache_data(ttl=60, show_spinner=False)
 def get_commercial_impact() -> dict:
-    return _get("/api/commercial-impact")
+    try:
+        return _get("/api/commercial-impact")
+    except RuntimeError as e:
+        return {"error": str(e)}
 
 
 @st.cache_data(ttl=60, show_spinner=False)
 def get_offender_fingerprint() -> dict:
-    return _get("/api/offender-fingerprint")
+    try:
+        return _get("/api/offender-fingerprint")
+    except RuntimeError as e:
+        return {"error": str(e)}
 
 
 @st.cache_data(ttl=60, show_spinner=False)
@@ -112,7 +158,10 @@ def get_feedback_loop(loc_key: str | None = None) -> dict:
     params = {}
     if loc_key:
         params["loc_key"] = loc_key
-    return _get("/api/feedback-loop", params)
+    try:
+        return _get("/api/feedback-loop", params)
+    except RuntimeError as e:
+        return {"error": str(e)}
 
 
 @st.cache_data(ttl=60, show_spinner=False)
@@ -126,14 +175,23 @@ def get_patrol_map(
     params = {"hour": hour, "day": day, "limit": limit, "patrol_tonight": patrol_tonight}
     if search:
         params["search"] = search
-    return _get("/api/patrol-map", params)
+    try:
+        return _get("/api/patrol-map", params)
+    except RuntimeError as e:
+        return {"error": str(e)}
 
 
 @st.cache_data(ttl=60, show_spinner=False)
 def get_zone_detail(loc_key: str) -> dict:
-    return _get(f"/api/zone/{loc_key}")
+    try:
+        return _get(f"/api/zone/{loc_key}")
+    except RuntimeError as e:
+        return {"error": str(e)}
 
 
 @st.cache_data(ttl=60, show_spinner=False)
 def get_daily_briefing() -> dict:
-    return _get("/api/daily-briefing")
+    try:
+        return _get("/api/daily-briefing")
+    except RuntimeError as e:
+        return {"error": str(e)}
