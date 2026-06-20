@@ -193,3 +193,43 @@ def dispatch_log(limit: int = Query(20, ge=1, le=100)):
 @app.get("/api/shift-intelligence")
 def shift_intelligence(shift: str = "Morning") -> dict:
     return get_shift_intelligence(shift=shift)
+
+
+@app.get("/api/citizen/reports")
+def citizen_reports() -> dict:
+    from backend.api.services import get_citizen_reports
+    return get_citizen_reports()
+
+
+@app.get("/api/citizen/report/{tracking_id}")
+def citizen_report(tracking_id: str) -> dict:
+    from backend.api.services import get_citizen_report
+    result = get_citizen_report(tracking_id)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Report not found")
+    return result
+
+
+@app.get("/api/system-health")
+def system_health() -> dict:
+    from backend.api.services import get_system_health
+    return get_system_health()
+
+
+@app.get("/api/control/simulate")
+def control_simulate(lat: float = Query(...), lon: float = Query(...), vehicle_type: str = Query("CAR")) -> dict:
+    from backend.api.services import simulate_tactical_control
+    return simulate_tactical_control(lat, lon, vehicle_type)
+
+
+@app.get("/api/strategy/simulate")
+def strategy_simulate(patrol_increase_pct: float = Query(50.0, ge=0, le=200)) -> dict:
+    from backend.api.services import simulate_strategy
+    return simulate_strategy(patrol_increase_pct)
+
+
+@app.get("/api/analytics/explorer")
+def analytics_explorer() -> dict:
+    from backend.api.services import get_analytics_explorer
+    return get_analytics_explorer()
+

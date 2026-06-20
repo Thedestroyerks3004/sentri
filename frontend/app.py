@@ -29,6 +29,11 @@ if not api_available():
 pages = [
     st.Page("pages/00_daily_briefing.py", title="Daily Briefing", icon="📋", default=True),
     st.Page("pages/01_patrol_map.py", title="Patrol Map", icon="🗺️"),
+    st.Page("pages/11_citizen_portal.py", title="Citizen Portal", icon="🕊️"),
+    st.Page("pages/12_system_health.py", title="System Health", icon="🛡️"),
+    st.Page("pages/13_control_simulator.py", title="Control Simulator", icon="🎮"),
+    st.Page("pages/14_strategy_lab.py", title="Strategy Lab", icon="🧪"),
+    st.Page("pages/15_analytics_explorer.py", title="Analytics Explorer", icon="🔬"),
     st.Page("pages/02_violation_forecast.py", title="Violation Forecast", icon="🔮"),
     st.Page("pages/03_anomaly_detector.py", title="Anomaly Detector", icon="🤖"),
     st.Page("pages/04_repeat_offenders.py", title="Repeat Offenders", icon="🔁"),

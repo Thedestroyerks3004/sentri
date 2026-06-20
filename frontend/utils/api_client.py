@@ -195,3 +195,52 @@ def get_daily_briefing() -> dict:
         return _get("/api/daily-briefing")
     except RuntimeError as e:
         return {"error": str(e)}
+
+
+@st.cache_data(ttl=60, show_spinner=False)
+def get_citizen_reports() -> dict:
+    try:
+        return _get("/api/citizen/reports")
+    except RuntimeError as e:
+        return {"error": str(e)}
+
+
+@st.cache_data(ttl=60, show_spinner=False)
+def get_citizen_report(tracking_id: str) -> dict:
+    try:
+        return _get(f"/api/citizen/report/{tracking_id}")
+    except RuntimeError as e:
+        return {"error": str(e)}
+
+
+@st.cache_data(ttl=60, show_spinner=False)
+def get_system_health() -> dict:
+    try:
+        return _get("/api/system-health")
+    except RuntimeError as e:
+        return {"error": str(e)}
+
+
+@st.cache_data(ttl=30, show_spinner=False)
+def simulate_control(lat: float, lon: float, vehicle_type: str) -> dict:
+    try:
+        return _get("/api/control/simulate", {"lat": lat, "lon": lon, "vehicle_type": vehicle_type})
+    except RuntimeError as e:
+        return {"error": str(e)}
+
+
+@st.cache_data(ttl=30, show_spinner=False)
+def simulate_strategy(patrol_increase_pct: float = 50.0) -> dict:
+    try:
+        return _get("/api/strategy/simulate", {"patrol_increase_pct": patrol_increase_pct})
+    except RuntimeError as e:
+        return {"error": str(e)}
+
+
+@st.cache_data(ttl=60, show_spinner=False)
+def get_analytics_explorer() -> dict:
+    try:
+        return _get("/api/analytics/explorer")
+    except RuntimeError as e:
+        return {"error": str(e)}
+

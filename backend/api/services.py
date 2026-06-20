@@ -445,6 +445,406 @@ def get_feedback_loop(loc_key: str | None = None) -> dict:
         store.feedback_cache = result
     return result
 
+# ============================================================================
+# Citizen Complaint Engine — Bridge of Trust
+# ============================================================================
+
+CITIZEN_STATUS_FLOW = [
+    "RECEIVED",
+    "UNDER_REVIEW",
+    "EVIDENCE_VALID",
+    "TICKET_GENERATED",
+    "RESOLVED",
+]
+
+CITIZEN_REJECT_STATUSES = ["REJECTED"]
+
+ESCLATION_48H = 48
+ESCLATION_7D = 168
+ESCLATION_14D = 336
+
+
+def _build_citizen_reports() -> dict:
+    df = store.violations.copy()
+    df = df.head(5000).copy()
+
+    reports = []
+    for idx, (_, row) in enumerate(df.iterrows()):
+        hours_since = int((pd.Timestamp.now(tz="UTC") - row["created_datetime"]).total_seconds() / 3600)
+
+        if row["validation_status_clean"] == "Approved":
+            state = "RESOLVED"
+        elif row["validation_status_clean"] == "Rejected":
+            state = "REJECTED"
+        elif row["is_anomaly"] == 1:
+            state = "UNDER_REVIEW"
+        elif hours_since > ESCLATION_14D:
+            state = "RESOLVED"
+        elif hours_since > ESCLATION_7D:
+            state = "RESOLVED"
+        elif hours_since > ESCLATION_48H:
+            states_pool = ["UNDER_REVIEW", "EVIDENCE_VALID"]
+            state = states_pool[idx % len(states_pool)]
+        else:
+            state = "RECEIVED"
+
+        timeline = []
+        created = row["created_datetime"]
+        state_order = ["RECEIVED", "UNDER_REVIEW", "EVIDENCE_VALID", "TICKET_GENERATED", "RESOLVED"]
+        if state == "REJECTED":
+            state_order = ["RECEIVED", "UNDER_REVIEW", "REJECTED"]
+
+        for i, s in enumerate(state_order):
+            if s == state:
+                timeline.append({
+                    "status": s, "timestamp": (created + pd.Timedelta(hours=i * 12)).isoformat(), "active": True,
+                })
+                break
+            timeline.append({
+                "status": s, "timestamp": (created + pd.Timedelta(hours=i * 12)).isoformat(), "active": True,
+            })
+
+        escalated = hours_since > ESCLATION_48H and state in ["UNDER_REVIEW", "RECEIVED"]
+        auto_closed = hours_since > ESCLATION_14D
+
+        reports.append({
+            "tracking_id": f"SENTRI-{idx + 1:06d}",
+            "status": state,
+            "timeline": timeline,
+            "location": row["location"],
+            "latitude": float(row["latitude"]),
+            "longitude": float(row["longitude"]),
+            "violation_type": row["violation_type_parsed"],
+            "vehicle_number": row["vehicle_number"],
+            "reported_at": created.isoformat(),
+            "assigned_officer": str(row["created_by_id"]),
+            "police_station": row["police_station"],
+            "escalated": escalated,
+            "auto_closed": auto_closed,
+            "hours_pending": hours_since if state not in ["RESOLVED", "REJECTED"] else 0,
+        })
+
+    return {
+        "total_reports": len(reports),
+        "reports": reports,
+        "status_counts": {s: sum(1 for r in reports if r["status"] == s) for s in CITIZEN_STATUS_FLOW + CITIZEN_REJECT_STATUSES},
+        "escalation_alerts": [r for r in reports if r["escalated"]],
+        "my_impact": {
+            "resolved_reports": sum(1 for r in reports if r["status"] == "RESOLVED"),
+            "total_participation": len(reports),
+        },
+    }
+
+
+def get_citizen_reports() -> dict:
+    return _build_citizen_reports()
+
+
+def get_citizen_report(tracking_id: str) -> dict | None:
+    reports = _build_citizen_reports()["reports"]
+    for r in reports:
+        if r["tracking_id"] == tracking_id:
+            return r
+    return None
+
+
+# ============================================================================
+# Immune System — Dynamic Quality Score (DQS)
+# ============================================================================
+
+
+def get_system_health() -> dict:
+    df = store.violations
+
+    officer_stats = (
+        df.groupby("created_by_id")
+        .agg(
+            total_filed=("id", "count"),
+            approved=("validation_status_clean", lambda s: (s == "Approved").sum()),
+            rejected=("validation_status_clean", lambda s: (s == "Rejected").sum()),
+            station=("police_station", "first"),
+            avg_anomaly=("anomaly_score", "mean"),
+        )
+        .reset_index()
+    )
+    officer_stats["rejection_rate"] = officer_stats.apply(
+        lambda r: r["rejected"] / (r["approved"] + r["rejected"]) * 100 if (r["approved"] + r["rejected"]) > 0 else 0,
+        axis=1,
+    )
+    officer_stats["dqs"] = officer_stats.apply(
+        lambda r: max(0, min(100, 100 + r["approved"] * 1 - r["rejected"] * 5)), axis=1,
+    )
+    officer_stats = officer_stats.sort_values("rejection_rate", ascending=False)
+
+    station_stats = (
+        df.groupby("police_station")
+        .agg(
+            total_filed=("id", "count"),
+            approved=("validation_status_clean", lambda s: (s == "Approved").sum()),
+            rejected=("validation_status_clean", lambda s: (s == "Rejected").sum()),
+            unique_officers=("created_by_id", "nunique"),
+        )
+        .reset_index()
+    )
+    station_stats["rejection_rate"] = station_stats.apply(
+        lambda r: r["rejected"] / (r["approved"] + r["rejected"]) * 100 if (r["approved"] + r["rejected"]) > 0 else 0,
+        axis=1,
+    )
+    station_stats["dqs"] = station_stats.apply(
+        lambda r: max(0, min(100, 100 + r["approved"] * 1 - r["rejected"] * 5)), axis=1,
+    )
+
+    valid = df[df["validation_status_clean"].isin(["Approved", "Rejected"])]
+    city_avg_rejection = float(valid["validation_status_clean"].eq("Rejected").mean() * 100)
+    city_std = float(valid["validation_status_clean"].eq("Rejected").std() * 100)
+
+    deviation_alerts = []
+    for _, row in station_stats.iterrows():
+        if row["rejection_rate"] > city_avg_rejection + 2 * city_std and row["total_filed"] > 50:
+            deviation_alerts.append({
+                "station": row["police_station"],
+                "rejection_rate": round(row["rejection_rate"], 1),
+                "city_avg": round(city_avg_rejection, 1),
+                "deviation": round(row["rejection_rate"] - city_avg_rejection, 1),
+                "severity": "CRITICAL" if row["rejection_rate"] > city_avg_rejection + 3 * city_std else "HIGH",
+                "recommendation": "Training/Standards Review recommended",
+            })
+
+    rejected_df = df[df["validation_status_clean"] == "Rejected"]
+    gps_drift_zones = (
+        rejected_df.groupby("loc_key")
+        .agg(rejections=("id", "count"), location=("location", "first"))
+        .reset_index()
+        .sort_values("rejections", ascending=False)
+        .head(20)
+    )
+
+    return {
+        "city_avg_rejection": round(city_avg_rejection, 1),
+        "city_std_deviation": round(city_std, 1),
+        "officers": officer_stats.head(100).to_dict(orient="records"),
+        "stations": station_stats.to_dict(orient="records"),
+        "deviation_alerts": deviation_alerts,
+        "gps_drift_zones": gps_drift_zones.to_dict(orient="records"),
+        "low_quality_threshold": round(city_avg_rejection + city_std, 1),
+    }
+
+
+# ============================================================================
+# Tactical Control Simulator — 5 Operational Layers
+# ============================================================================
+
+
+def simulate_tactical_control(lat: float, lon: float, vehicle_type: str) -> dict:
+    zones = store.zones.dropna(subset=["latitude", "longitude"]).copy()
+    zones["dist"] = ((zones["latitude"].astype(float) - lat) ** 2 + (zones["longitude"].astype(float) - lon) ** 2) ** 0.5
+    nearest = zones.loc[zones["dist"].idxmin()] if not zones.empty else None
+
+    nearby = store.violations[
+        (abs(store.violations["latitude"] - lat) < 0.01) &
+        (abs(store.violations["longitude"] - lon) < 0.01)
+    ]
+    approval_rate = (nearby["validation_status_clean"] == "Approved").mean() if not nearby.empty else 0.6
+    confidence = round(min(1.0, max(0.0, approval_rate)), 2)
+
+    is_heavy = any(k in str(vehicle_type).upper() for k in ["TANKER", "TRUCK", "BUS", "LCV", "LGV"])
+
+    validation_blocked = confidence < 0.6
+    steps = []
+
+    steps.append({
+        "layer": 0, "name": "Validation Gatekeeper",
+        "action": "Check historical approval rate",
+        "status": "BLOCKED" if validation_blocked else "PASSED",
+        "confidence": confidence,
+        "detail": f"Approval rate for this location: {confidence:.0%}", "icon": "🛡️",
+    })
+
+    if not validation_blocked:
+        is_junction = nearest is not None and nearest.get("pcis", 0) > 30
+        steps.append({
+            "layer": 1, "name": "Anti-Gridlock Hold",
+            "action": "Hold conflicting green phase for 5 seconds",
+            "status": "EXECUTED",
+            "detail": f"Violation near junction (PCIS: {nearest.get('pcis', 0):.0f})" if is_junction else "No junction near blockage",
+            "icon": "🚦",
+        })
+        steps.append({
+            "layer": 2, "name": "Heavy Discharge Extension",
+            "action": "Add +7s green for blocked approach (3 cycles)" if is_heavy else "Not triggered (non-heavy vehicle)",
+            "status": "EXECUTED" if is_heavy else "SKIPPED",
+            "detail": f"{vehicle_type} blocking lane — extended green applied" if is_heavy else f"Vehicle type: {vehicle_type}",
+            "icon": "🟢",
+        })
+        steps.append({
+            "layer": 3, "name": "Shockwave Dampening (VMS)",
+            "action": "Drop upstream VMS speed to 30 km/h for 5 min",
+            "status": "EXECUTED",
+            "detail": "Speed advisory sent to nearest VMS board", "icon": "🪧",
+        })
+        cone_coords = [
+            {"lat": round(lat + 0.001 * __import__("math").cos(__import__("math").radians(a * 7)), 6),
+             "lon": round(lon + 0.001 * __import__("math").sin(__import__("math").radians(a * 7)), 6)}
+            for a in range(8)
+        ]
+        steps.append({
+            "layer": 4, "name": "Zipper-Merge Cone Map",
+            "action": "Generate 7-degree cone taper GPS coordinates",
+            "status": "DISPLAYED",
+            "detail": "QR code ready for beat constable", "icon": "📐",
+            "cone_coordinates": cone_coords,
+        })
+
+    return {
+        "latitude": lat, "longitude": lon, "vehicle_type": vehicle_type,
+        "confidence": float(confidence),
+        "validation_blocked": bool(validation_blocked),
+        "total_layers": len(steps),
+        "steps": [
+            {
+                "layer": s["layer"],
+                "name": s["name"],
+                "action": s["action"],
+                "status": s["status"],
+                "confidence": float(s.get("confidence", 0)),
+                "detail": s["detail"],
+                "icon": s.get("icon", ""),
+                **({"cone_coordinates": s["cone_coordinates"]} if "cone_coordinates" in s else {}),
+            }
+            for s in steps
+        ],
+        "risk_tier": str(nearest.get("risk_tier", "Unknown")) if nearest is not None else "Unknown",
+        "location": str(nearest.get("location", "")) if nearest is not None else "",
+        "timestamp": pd.Timestamp.now().isoformat(),
+    }
+
+
+# ============================================================================
+# Strategy Lab — What-If Simulation
+# ============================================================================
+
+
+def simulate_strategy(patrol_increase_pct: float = 50.0) -> dict:
+    df = store.violations
+    zones = store.zones
+    high_risk_keys = zones[zones["risk_tier"].isin(["Critical", "High Risk"])]["loc_key"].tolist()
+    high_risk_current = len(df[df["loc_key"].isin(high_risk_keys)])
+
+    total_current = len(df)
+    elasticity = 0.4
+    reduction_pct = patrol_increase_pct * elasticity
+    predicted_reduction = int(high_risk_current * reduction_pct / 100)
+    predicted_total = total_current - predicted_reduction
+
+    weekly_base = total_current / 4
+    projections = []
+    for w in range(4):
+        r = reduction_pct * (1 - w * 0.15)
+        projections.append({
+            "week": w + 1,
+            "current_trend": int(weekly_base),
+            "simulated_trend": int(weekly_base * (1 - r / 100)),
+            "reduction_pct": round(r, 1),
+        })
+
+    return {
+        "patrol_increase_pct": patrol_increase_pct,
+        "elasticity_factor": elasticity,
+        "total_current_violations": total_current,
+        "high_risk_violations": high_risk_current,
+        "predicted_reduction": predicted_reduction,
+        "predicted_total_after": predicted_total,
+        "reduction_pct": round(reduction_pct, 1),
+        "weekly_projection": projections,
+        "top_zones_impact": zones[zones["risk_tier"].isin(["Critical", "High Risk"])].head(10)[
+            ["location", "risk_tier", "total_violations", "pcis"]
+        ].to_dict(orient="records"),
+    }
+
+
+# ============================================================================
+# Analytics Explorer — Association Rules & Anomaly Explanations
+# ============================================================================
+
+
+def get_analytics_explorer() -> dict:
+    df = store.violations
+
+    # Association rules
+    ctab = pd.crosstab(df["vehicle_type_clean"], df["violation_type_parsed"], normalize="index")
+    rules = []
+    for vtype in df["vehicle_type_clean"].value_counts().head(10).index:
+        if vtype in ctab.index:
+            for vtype2, conf in ctab.loc[vtype].sort_values(ascending=False).head(3).items():
+                if conf > 0.05:
+                    rules.append({
+                        "vehicle_type": vtype,
+                        "violation_type": str(vtype2),
+                        "confidence": round(float(conf), 3),
+                        "support": int((df["vehicle_type_clean"] == vtype).sum()),
+                    })
+    rules.sort(key=lambda x: x["confidence"], reverse=True)
+
+    # Micro-zone clusters
+    clusters = (
+        df.groupby("loc_key")
+        .agg(
+            latitude=("latitude", "first"), longitude=("longitude", "first"),
+            location=("location", "first"), violation_count=("id", "count"),
+            police_station=("police_station", "first"),
+            top_violation=("violation_type_parsed", lambda s: s.mode().iloc[0] if not s.mode().empty else "Unknown"),
+            vehicle_diversity=("vehicle_type_clean", "nunique"),
+        )
+        .reset_index()
+        .sort_values("violation_count", ascending=False)
+        .head(100)
+    )
+
+    # Anomaly explanations
+    anomalies = df[df["is_anomaly"] == 1].sort_values("anomaly_score", ascending=False).head(50)
+    explanations = []
+    for _, row in anomalies.iterrows():
+        oid = row["created_by_id"]
+        o_total = len(df[df["created_by_id"] == oid])
+        o_anomalies = len(df[(df["created_by_id"] == oid) & (df["is_anomaly"] == 1)])
+        hourly_rate = o_total / max(1, df[df["created_by_id"] == oid]["hour_int"].nunique())
+
+        reasons = []
+        if row["same_second_filing_count"] > 5:
+            reasons.append(f"Burst filing: {int(row['same_second_filing_count'])} records in same second")
+        if o_anomalies > 10:
+            reasons.append(f"Officer {oid} has {o_anomalies} flagged records")
+        if hourly_rate > 10:
+            reasons.append(f"Unusual filing rate: ~{hourly_rate:.0f}/hr")
+        if row["validation_status_clean"] == "Rejected":
+            reasons.append("Record was subsequently rejected")
+        if not reasons:
+            reasons.append("Statistical outlier in feature space")
+
+        explanations.append({
+            "anomaly_score": round(float(row["anomaly_score"]), 3),
+            "officer_id": oid,
+            "police_station": row["police_station"],
+            "location": row["location"][:80],
+            "violation_type": row["violation_type_parsed"],
+            "same_second_count": int(row["same_second_filing_count"]),
+            "reasons": reasons,
+        })
+
+    station_digit = (
+        df.groupby("police_station").agg(total_filed=("id", "count")).reset_index().sort_values("total_filed", ascending=False)
+    )
+    max_f = station_digit["total_filed"].max() or 1
+    station_digit["digitization_rate"] = (station_digit["total_filed"] / max_f * 100).round(1)
+
+    return {
+        "clusters": clusters.to_dict(orient="records"),
+        "association_rules": rules[:30],
+        "anomaly_explanations": explanations,
+        "station_digitization": station_digit.to_dict(orient="records"),
+    }
+
+
 SHIFT_WINDOWS = {
     "Morning": (6, 10),
     "Afternoon": (10, 17),
