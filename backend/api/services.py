@@ -576,8 +576,10 @@ def get_system_health() -> dict:
     )
     officer_stats = officer_stats.sort_values("rejection_rate", ascending=False)
 
+    station_df = df.dropna(subset=["police_station"]).copy()
+    station_df = station_df[station_df["police_station"].astype(str).str.strip() != ""]
     station_stats = (
-        df.groupby("police_station")
+        station_df.groupby("police_station")
         .agg(
             total_filed=("id", "count"),
             approved=("validation_status_clean", lambda s: (s == "Approved").sum()),
@@ -649,7 +651,7 @@ def simulate_tactical_control(lat: float, lon: float, vehicle_type: str) -> dict
 
     is_heavy = any(k in str(vehicle_type).upper() for k in ["TANKER", "TRUCK", "BUS", "LCV", "LGV"])
 
-    validation_blocked = confidence < 0.6
+    validation_blocked = confidence < 0.3
     steps = []
 
     steps.append({
